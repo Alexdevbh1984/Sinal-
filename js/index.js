@@ -7,7 +7,7 @@ function calcularPerdas() {
     const tipoCabo = document.getElementById('tipo-cabo').value;
   
     // Validar frequência
-    if (frequencia < 105 || frequencia > 999) {
+    if (frequencia < 1.9 || frequencia > 1000) {
       document.getElementById('erro-frequencia').style.display = 'block';
       return;
     } else {
@@ -85,23 +85,56 @@ function calcularPerdas() {
     // Atenuação típica em dB/100 metros para diferentes tipos de cabo
     const atenuacao = {
       rg6: {
-        105: 2.5,  // Atenuação para 105 MHz
-        999: 8.5   // Atenuação para 999 MHz
+        1.90: 1.90,
+        55: 5.25,
+        83: 6.40,
+        187: 9.35,
+        211: 10.00,
+        250: 10.82,
+        300: 11.64,
+        350: 12.63,
+        400: 13.61,
+        450: 14.43,
+        500: 15.09,
+        550: 16.08,
+        600: 16.73,
+        750: 18.54,
+        865: 20.01,
+        1000: 21.49
       },
       rg11: {
-        105: 1.8,  // Atenuação para 105 MHz
-        999: 6.0   // Atenuação para 999 MHz
+        1.90: 1.25,
+        55: 3.15,
+        83: 3.87,
+        187: 5.74,
+        211: 6.23,
+        250: 6.72,
+        300: 7.38,
+        350: 7.94,
+        400: 8.53,
+        450: 9.02,
+        500: 9.51,
+        550: 9.97,
+        600: 10.43,
+        750: 11.97,
+        865: 13.05,
+        1000: 14.27
       }
     };
   
-    // Interpolação linear para calcular a atenuação com base na frequência
-    const freqMin = 105;
-    const freqMax = 999;
-    const attMin = atenuacao[tipoCabo][freqMin];
-    const attMax = atenuacao[tipoCabo][freqMax];
+    // Frequências disponíveis
+    const frequenciasDisponiveis = Object.keys(atenuacao[tipoCabo]).map(Number).sort((a, b) => a - b);
   
-    const atenuacaoPorMetro = ((attMax - attMin) / (freqMax - freqMin)) * (frequencia - freqMin) + attMin;
+    // Encontrar a frequência mais próxima
+    let freqMaisProxima = frequenciasDisponiveis[0];
+    for (const freq of frequenciasDisponiveis) {
+      if (Math.abs(freq - frequencia) < Math.abs(freqMaisProxima - frequencia)) {
+        freqMaisProxima = freq;
+      }
+    }
   
-    // Converter para dB/metro
-    return atenuacaoPorMetro / 100;
+    // Obter a atenuação para a frequência mais próxima
+    const atenuacaoPorMetro = atenuacao[tipoCabo][freqMaisProxima] / 100;
+  
+    return atenuacaoPorMetro;
   }
